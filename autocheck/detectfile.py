@@ -10,11 +10,9 @@ def unzip_file(filepath, destpath = "./", filesign = "*", unzip_type = 'e'):
 	3) filesign : the specified file sign or type
 	4) unzip_type:  'e' -> extact the file to the destpath totally
 	                'x' -> extact the filetree to the destpath
-
 	'''
 	file_list = []
 
-#	if os.path.isfile
 	if not os.path.isfile(filepath):
 		return -1, "Error in fileinput", file_list
 	if not os.path.isdir(destpath):
@@ -42,15 +40,54 @@ def unzip_file(filepath, destpath = "./", filesign = "*", unzip_type = 'e'):
 				file_list.append(os.path.join(root, i))
 	return res, err, file_list
 
+def uapcar_file(exepath, filename):
+	'''
+	Description: this function is meant to decompress the *bin type file
+	exepath: the path of uapcar.exe
+	filename : the destname
+	'''
+	if not os.path.isfile(exepath):
+		return -1, "Error : wrong exepath! {0}".format(exepath)
+	if os.path.basename(exepath) != 'uapcar.exe':
+		return -1, "Error : wrong exepath! {0}".format(exepath)
+	if not os.path.isfile(filename):
+		return -2, "Error : wrong dest filename! {0}".format(filename)
+	if not os.path.splitext(os.path.basename(filename)):
+		return -2, "Error : wrong dest filename! {0}".format(filename)
+	if not os.path.exists(exepath):
+		return -3, "Error : no exefile found! {0}".format(exepath)
+	if not os.path.exists(filename):
+		return -3, "Error : no dest bin file found! {0}".format(filename)
+	
+	cmd = r"{0} {1}".format(exepath, filename)
+	p = subprocess.Popen(cmd, shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+	try:
+		out, err = p.communicate(timeout = 30)
+	except TimeoutExpired:
+		p.kill()
+		out, err = p.communicate()
+		res = p.returncode
+		return res, err, file_list
+
+	#check the destpath
+	res = p.returncode
+
+	#check the file
+	basedir = os.path.dirname(exepath)
+	if not os.path.exists(os.path.join(basedir + "\\downlist")):
+		res = -4
+	return res, err
+
+
 
 
 
 if __name__ == '__main__':
-	file = r"G:\PCS_PROJECT\_TEST\PCS_992_TEST\aaa.7z"
-	dest = r".\dest"
+	file = r"G:\PCS_PROJECT\_TEST\PCS_992_TEST\uapcar.exe"
+	dest = r"G:\PCS_PROJECT\_TEST\PCS_992_TEST\dest\Milagr.bin"
 	sign = r"*.txt"
 	ztype = r'r'
-	rt, err, content = unzip_file(file, dest, sign, ztype)
-	print("rt = ", rt)
-	print("err = ", err)
-	print("content = ", content)
+	a, b = uapcar_file(file, dest)
+	print("a = ", a)
+	print("b = ", b)
+
