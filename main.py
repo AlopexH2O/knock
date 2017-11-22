@@ -4,7 +4,22 @@ import json
 from autocheck import detectfile
 
 
+def check_src_dir(src):
+	mk = os.path.join(src, 'MASTER1151\\make.bat')
+	link = os.path.join(src, 'MASTER1151\\link')
+	obj = os.path.join(src, "MASTER1151\\obj")
+	header = os.path.join(src, "MASTER1151\\src")
 
+	if not os.path.exists(mk):
+		return -1
+	if not os.path.exists(header):
+		return -1
+	if not os.path.exists(link):
+		os.mkdir(link)
+	if not os.path.exists(obj):
+		os.mkdir(obj)
+	return 0
+	
 
 
 
@@ -16,8 +31,70 @@ if __name__ == '__main__':
 	production = setinfo['production']
 	p7z = setinfo['p7z']
 	pUapcar = setinfo['pUapcar']
-	print(view)
-	print(project)
-	print(production)
-	print(p7z)
-	print(pUapcar)
+	
+	prod = os.path.join(project, production)#生产文件全地址
+	view_src = os.path.join(view, "PCS_SYS_PROT\\PCS-992\\src\\src")
+	proj_src = os.path.join(project, "src")
+#	print("1. Copying Directory:{0} to {1}".format(view_src, proj_src))
+#	#复制文件
+#	if os.path.exists(proj_src):
+#		print("WARNING: {0} already exist! Please Check!".format(proj_src))
+#		exit()
+#	if not os.path.exists(view_src):
+#		print("ERROR: {0} don't exist! Please Check!")
+#		exit()
+#
+#	shutil.copytree(view_src, proj_src)
+#	#设置文件可读写
+#	detectfile.set_readable(proj_src)
+#	#查看MASTER1151
+#	res = check_src_dir(proj_src)
+#	if res < 0:
+#		print("Error: File dump in src dir!!")
+#		exit()
+#
+#
+#	print("2. unzip_file {0}".format(prod))
+#	res, err = detectfile.unzip_file(prod, project, "*.bin", 'e')
+#	print("res = ", res)
+#	print("err = ", err)
+#
+#	if res != 0:
+#		print("Failed in unzip_file")
+#		exit()
+
+	print("3. uapcar bin file")
+	#搜索bin文件
+	bin_file = detectfile.find_special(detectfile.list_file(project, '-f'), '\.[bB][iI][nN]$')
+	if len(bin_file) == 0:
+		print("Error: There is no bin in {0}".format(project))
+		exit()
+	for i in bin_file:
+		print("uapcar file {0}".format(i))
+		detectfile.uapcar_file(pUapcar, i)
+
+	print("4. BeyondCompare NR1151.hex")
+	BIN_NR1151 = detectfile.find_special(detectfile.list_file(os.path.join(project, "downlist"), '-f'), "_NR1151\.[hH][eE][xX]$")
+	SRC_NR1151 = detectfile.find_special(detectfile.list_file(os.path.join(proj_src, "MASTER1151"), '-f'), "NR1151\.[hH][eE][xX]$")
+	print("BIN_NR1151 = ", BIN_NR1151)
+	print("SRC_NR1151 = ", SRC_NR1151)
+	if len(BIN_NR1151) != 1 and len(SRC_NR1151) != 1:
+		print("WARN: BIN_NR1151 = ", BIN_NR1151)
+		print("WARN: SRC_NR1151 = ", SRC_NR1151)
+		print("Please Check !!!")
+		exit()
+	report = os.path.join(project, "reprot.txt")
+	res, err = detectfile.bcompare("BCompare.exe", SRC_NR1151[0], BIN_NR1151[0], report)
+	print("res = ", res)
+	print("err = ", err)
+
+	if res == 0:
+		print("Well Done!!, Please Check {0}".format(report))
+	else:
+		print("Bad Luck!!")
+		
+
+
+
+
+

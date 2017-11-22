@@ -1,9 +1,10 @@
 {
-	"view":"zhengh_友谊变_int",
-	"production":"生产文件.7z",
+	"view":"M:\\zhengh_PCS-992M-110kV江达变_int",
 
 	"project":"G:\\PCS_PROJECT\\_TEST\\PCS_992_TEST",
+	"production":"生产文件.7z",
+
 	"p7z":"7z",
-	"pUapcar":"uapcar.exe"
+	"pUapcar":"G:\\PCS_PROJECT\\_TEST\\PCS_992_TEST\\uapcar.exe"
 
 }
