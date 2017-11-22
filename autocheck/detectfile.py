@@ -140,10 +140,8 @@ def bcompare(exepath, leftfile, rightfile, reportfile = './report.txt'):
 		res = p.returncode
 		return res, err
 	#check the destpath
-	res = p.returncode
-	
+	res = p.returncode	
 
-	
 	return res, err
 
 
