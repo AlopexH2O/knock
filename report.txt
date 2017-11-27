@@ -1,9 +1,0 @@
-Text Compare
-Produced: 2017-11-20 8:53:21
-
-Left file: G:\PCS_PROJECT\_TEST\PCS_992_TEST\downlist\bin26_NR1151.hex
-Right file: G:\PCS_PROJECT\_TEST\PCS_992_TEST\src\MASTER1151\NR1151.hex
-15683 same line(s)
-1 important difference line(s)
-
-1 difference section(s)

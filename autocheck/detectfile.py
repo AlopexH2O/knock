@@ -2,6 +2,7 @@ import subprocess
 import os
 import re
 import stat
+#import shutil
 
 def unzip_file(filepath, destpath = "./", filesign = "*", unzip_type = 'e', pathof7z = "7z"):
 	'''
@@ -85,6 +86,9 @@ def find_special(filelist, sign):
 
 def list_file(filepath = r'./', sign = '-rf'):
 	filelist = []
+	if not os.path.exists(filepath):
+		print("Error(func_list_file): cannot find {0}".format(filepath))
+		return filelist
 	if sign == '-rf':
 		for root, _, files in os.walk(filepath):
 			for i in files:
@@ -144,16 +148,118 @@ def bcompare(exepath, leftfile, rightfile, reportfile = './report.txt'):
 
 	return res, err
 
+def makehex(exepath):
+	"""
+	在view_src目录下寻找make.bat和makefile文件,自动编译生成hex文件
+	"""
+	if not os.path.exists(exepath):
+		print("Error[func makehex]: Cannot find {0}".format(exepath))
+		exit()
+	if not os.path.isdir(exepath):
+		print("Error[func makehex]: Not a directory! {0}".format(exepath))
+		exit()
+	cmdmake = "make.bat"
+	makefile = "makefile"
+	_bat_found = False
+	_file_found = False
+	for str in os.listdir(exepath):
+		if str.lower() == makefile:
+			_file_found = True
+			makefile = str
+			continue
+	if not _file_found:
+		print("Error[func makehex]: File missing {0}".format(makefile))
+		exit()
+	#check makefile
+	check_makefile(os.path.join(exepath, makefile))
+
+	#make the hex
+	#cmd = os.path.join(os.path.abspath(exepath), cmdmake)
+	cmd_cls = "gmake-378.exe clean"
+	cmd_make = "gmake-378.exe make"
+	#更变编译目录
+	os.chdir(exepath)
+	print(os.getcwd())
+	#执行clean
+	print("make clean ...")
+	res = subprocess.call(cmd_cls, shell = True)
+	if res != 0:
+		print("Error[func exepath]: subprocess.call {0}".format(cmd_cls))
+		return -1
+	print("make hex ...")
+	res = subprocess.call(cmd_make, shell = True)
+	if res != 0:
+		print("Error[func exepath]: subprocess.call {0}".format(cmd_cls))
+		return -1
+	return res
+
+def check_makefile(filepath):
+	_tag = r'((\.){2}\\){4}uapc_releaseR'
+	_tag_se = r'((\.){2}\\)+uapc_releaseR'
+	_rpel = "..\\..\\..\\..\\uapc_releaseR"
+	_bak = filepath+ "_bak"
+	_p = re.compile(_tag)
+	_p_se = re.compile(_tag_se)
+
+	with open(filepath, 'r') as _fd:
+		_content = _fd.read()
+	res = re.search(_p, _content)
+	if not res:
+		print("Log[func {0}]: Success in checking Makefile {1}".format(check_makefile.__name__, filepath))
+		return
+	#系统目录不对
+	print("Warning[func {0}]: Something wrong in {1}".format(check_makefile.__name__, filepath))
+	print(re.search(_p_se, _content))
+	if re.search(_p_se, _content):
+		#目录层次问题
+		_content = re.sub(_tag_se, _rpel, _content)
+		#备份文件，重写makefile
+		#shutil.copy(filepath, _bak)
+		print("Log[func {0}]: Rename Makefile. From {1} to {2}".format(check_makefile.__name__, filepath, _bak))
+		os.rename(filepath, _bak)
+		with open(filepath, 'w') as fw:
+			fw.write(_content)
+			return
+	return
+
+
+def clearcase_mkbl(view, tag):
+	"""
+	mkbl 
+	"""
+	err = ""
+	if not os.path.exists(view):
+		print("Error[func {0}]: Cannot find the view - {1}".format(clearcase_mkbl.__name__, view))
+		return -1, "View doesn't exist!"
+	if not os.path.isdir(view):
+		print("Error[func {0}]: Cannot find the view - {1}".format(clearcase_mkbl.__name__, view))
+		return -1, "View isn't a directory!"
+
+	view_name = os.path.dirname(view)
+	cmd = "cleartool mkbl -all -full -identical -view {0} {1}".format(view_name, tag)
+	out = subprocess.check_output(cmd, shell=True).decode('gb2312')
+	print(out)
+	return 0, out
+
+
+
+
+
+
+
+
+
 
 
 
 if __name__ == '__main__':
-	file = r"G:\PCS_PROJECT\_TEST\PCS_992_TEST\report.txt"
+	file = r"G:\PCS_PROJECT\_TEST\PCS_992_TEST\src\MASTER1151\Makefile"
 	dest = r"G:\PCS_PROJECT\_TEST\PCS_992_TEST\report1.txt"
 	sign = r"G:\PCS_PROJECT\_TEST\PCS_992_TEST\rr.txt"
 	ztype = r'r'
-	res ,err = bcompare('BCompare.exe', file, dest, sign)
-	print("res = ", res)
-	print("err = ", err)
+	#res ,err = bcompare('BCompare.exe', file, dest, sign)
+	#res  = makehex(r"G:\PCS_PROJECT\_TEST\PCS_992_TEST\src\MASTER1151")
+	check_makefile(file)
+	#print("res = ", res)
 	
 
