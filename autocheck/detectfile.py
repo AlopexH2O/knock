@@ -182,8 +182,8 @@ def makehex(exepath):
 	print(os.getcwd())
 	#执行clean
 	print("make clean ...")
-	res = subprocess.call(cmd_cls, shell = True)
-	if res != 0:
+	res1 = subprocess.call(cmd_cls, shell = True)
+	if res1 != 0:
 		print("Error[func exepath]: subprocess.call {0}".format(cmd_cls))
 		return -1
 	print("make hex ...")
@@ -191,12 +191,15 @@ def makehex(exepath):
 	if res != 0:
 		print("Error[func exepath]: subprocess.call {0}".format(cmd_cls))
 		return -1
+	
 	return res
 
 def check_makefile(filepath):
-	_tag = r'((\.){2}\\){4}uapc_releaseR'
-	_tag_se = r'((\.){2}\\)+uapc_releaseR'
-	_rpel = "..\\..\\..\\..\\uapc_releaseR"
+#	_tag = r'((\.){2}[/\\]){4}uapc_releaseR'
+#	_tag_se = r'((\.){2}[/\\])+uapc_releaseR'
+	_tag = r'((\.){2}[/\\]){4}uapc_releaseR'
+	_tag_se = r'((\.){2}[/\\])+uapc_release.2'
+	_rpel = "..\\..\\..\\..\\uapc_releaseR2"
 	_bak = filepath+ "_bak"
 	_p = re.compile(_tag)
 	_p_se = re.compile(_tag_se)
@@ -204,7 +207,8 @@ def check_makefile(filepath):
 	with open(filepath, 'r') as _fd:
 		_content = _fd.read()
 	res = re.search(_p, _content)
-	if not res:
+#	print(res)
+	if res:
 		print("Log[func {0}]: Success in checking Makefile {1}".format(check_makefile.__name__, filepath))
 		return
 	#系统目录不对
@@ -234,12 +238,21 @@ def clearcase_mkbl(view, tag):
 	if not os.path.isdir(view):
 		print("Error[func {0}]: Cannot find the view - {1}".format(clearcase_mkbl.__name__, view))
 		return -1, "View isn't a directory!"
+	now = os.getcwd()
+	dest = os.path.dirname(view)
+	view_name = os.path.basename(view)
 
-	view_name = os.path.dirname(view)
+	print("pwd = {0}\ndest = {1}\nview_name = {2}".format(now, dest, view_name))
+	
+	print("Log[func clearcase_mkbl]: Changedir to {0}".format(dest))
+	os.chdir(dest)  #切换至view目录
+
 	cmd = "cleartool mkbl -all -full -identical -view {0} {1}".format(view_name, tag)
 	out = subprocess.check_output(cmd, shell=True).decode('gb2312')
 	print(out)
-	return 0, out
+
+	os.chdir(now) #返回之前目录
+	return 0, ""
 
 
 

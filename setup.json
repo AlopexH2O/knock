@@ -1,11 +1,8 @@
 {
-	"view":"M:\\zhengh_临沧科技项目孟定变_int",
-
-	"project":"G:\\PCS_PROJECT\\_TEST\\PCS_992_TEST",
-	"production":"生产文件.7z",
-
-	"p7z":"7z",
-	"pUapcar":"G:\\PCS_PROJECT\\_TEST\\PCS_992_TEST\\uapcar.exe",
-
-	"tag":"BPCS992_R1.00_T150680_457638"
+    "view": "M:\\zhengh_贵州青岩变_int",
+    "project": "G:\\PCS_PROJECT\\_TEST\\PCS_992_TEST",
+    "production": "生产文件.7z",
+    "p7z": "7z",
+    "pUapcar": "G:\\PCS_PROJECT\\_TEST\\PCS_992_TEST\\uapcar.exe",
+    "tag": "BPCS992_R1.10_T162245_455793"
 }
